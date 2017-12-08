@@ -18,3 +18,7 @@ Route::get('/about', 'StaticPagesController@about')->name('about');
 
 Route::get('/singup', 'UserController@create')->name('singup');
 Route::resource('users', 'UserController');
+
+Route::get('login', 'SessionsController@create')->name('login');
+Route::post('login', 'SessionsController@store')->name('login');
+Route::delete('logout', 'SessionsController@destroy')->name('logout');

@@ -1,3 +1,4 @@
+<div class="shared-msg">
 @foreach (['danger', 'warning', 'success', 'info'] as $msg)
   @if(session()->has($msg))
     <div class="flash-message">
@@ -7,3 +8,4 @@
     </div>
   @endif
 @endforeach
+</div>

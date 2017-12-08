@@ -26,7 +26,8 @@ class UserController extends Controller
             'password' => 'required|confirmed'
         ]);
         $user = User::create($request->all());
-        session()->flash('success', '欢迎，您将在这里开启一段新的旅程~');
-        return redirect('/users/' . $user->id);
+        Auth::login($user);
+        //session()->flash('success', '欢迎，您将在这里开启一段新的旅程~');
+        return redirect('/users/' . $user->id)->with(['success' => '欢迎，您将在这里开启一段新的旅程~']);
     }
 }
