@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 use Auth;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
     public function __construct()
     {
         $this->middleware('auth', [
-            'except' => ['show', 'create', 'store']
+            'except' => ['show', 'create', 'store', 'confirmEmail']
         ]);
         $this->middleware('guest', [
             'only' => ['create']
@@ -43,9 +44,11 @@ class UserController extends Controller
             'password' => 'required|confirmed|min:6'
         ]);
         $user = User::create($request->all());
-        Auth::login($user);
+        //发送激活令牌邮件
+        $this->sendEmailConfirmationTo($user);
+//        Auth::login($user);
         //session()->flash('success', '欢迎，您将在这里开启一段新的旅程~');
-        return redirect('/users/' . $user->id)->with(['success' => '欢迎，您将在这里开启一段新的旅程~']);
+        return redirect('/')->with(['success' => '验证邮件已发送到你的注册邮箱上，请注意查收。']);
     }
 
     public function edit(User $user)
@@ -80,5 +83,32 @@ class UserController extends Controller
         $user->delete();
         session()->flash('success', '成功删除用户！');
         return back();
+    }
+
+    public function confirmEmail($token)
+    {
+        $user = User::where('activation_token', $token)->firstOrFail();
+
+        $user->activated = true;
+        $user->activation_token = null;
+        $user->save();
+
+        Auth::login($user);
+        session()->flash('success', '恭喜您，激活成功！');
+        return redirect()->route('users.show', $user->id);
+    }
+
+    protected function sendEmailConfirmationTo($user)
+    {
+        $view = 'emails.confirm';  //邮件模板
+        $data = compact('user');    //给该视图的数据数组
+        $from = '976724250@qq.com'; //发送者的邮箱
+        $name = 'wlh'; //发送者的名字
+        $to = $user->email; //发送到的邮箱;
+        $subject = "感谢注册 Sample 应用！请确认你的邮箱。";
+
+        Mail::send($view, $data, function($message) use($from, $name, $to, $subject) {
+            $message->from($from, $name)->to($to)->subject($subject);
+        });
     }
 }
