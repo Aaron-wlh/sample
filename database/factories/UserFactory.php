@@ -25,3 +25,11 @@ $factory->define(App\Models\User::class, function (Faker $faker) {
         'is_admin' => false,
     ];
 });
+
+$factory->define(App\Models\Status::class, function (Faker $faker) {
+    $ids = \App\Models\User::pluck('id')->toArray();
+    return [
+        'content'    => $faker->text(),
+        'user_id' => $faker->randomElement($ids),
+    ];
+});

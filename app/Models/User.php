@@ -48,8 +48,22 @@ class User extends Authenticatable
         });
     }
 
+    //定制邮件
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPassword($token));
     }
+    
+    //用户与微博 一对多
+    public function statuses()
+    {
+        return $this->hasMany(Status::class);
+    }
+
+    public function feed()
+    {
+        return $this->statuses()->orderBy('created_at', 'desc');
+    }
+    
+    
 }
